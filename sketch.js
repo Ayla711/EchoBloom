@@ -8,8 +8,10 @@ let confidence = 0;
 
 let classifier;
 // Local model path - update this when model files are added
-// Use absolute URL for model - ml5 requires http/https
-let modelURL = window.location.origin + '/assets/model/model.json';
+// Use absolute URL for both model and metadata - required by ml5
+const baseURL = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
+let modelURL = baseURL + 'assets/model/model.json';
+let metadataURL = baseURL + 'assets/model/metadata.json';
 
 let isStarted = false;
 
@@ -253,13 +255,16 @@ let mic; // Explicit microphone input
 function preload() {
   console.log('[DEBUG] preload() starting...');
   console.log('[DEBUG] ml5 version:', ml5.version);
+  console.log('[DEBUG] baseURL:', baseURL);
+  console.log('[DEBUG] modelURL:', modelURL);
+  console.log('[DEBUG] metadataURL:', metadataURL);
 
   // Get audio context for classifier
   const audioCtx = getAudioContext();
   console.log('[DEBUG] AudioContext state:', audioCtx.state);
 
-  // Load model with audio context and microphone
-  classifier = ml5.soundClassifier(modelURL, { audioContext: audioCtx }, modelReady);
+  // Load model with audio context and metadata
+  classifier = ml5.soundClassifier(modelURL, { metadata: metadataURL, audioContext: audioCtx }, modelReady);
 
   // Load audio files with error handling
   swaySound  = loadSound('assets/audio/sway.MP3',  checkSoundsLoaded, soundLoadError.bind(null, 'sway.MP3'));
